@@ -83,7 +83,7 @@ def know_country(brand):
     for i in country_to_brand.keys():
         if brand in country_to_brand[i]:
             return i
-    return None
+    return "No country"
 
 def asparseprice(page):
     soup = BeautifulSoup(page, 'html.parser')
@@ -149,10 +149,11 @@ def parse_catalogs(write=False):
     return finalcatalogs
 
 def parse_product_pages(finalcatalogs=[],write=False):
-    try:
-        finalcatalogs=read_file('hatewaitcatalog.txt')
-    except:
-        finalcatalogs=parse_catalogs(write=True)
+    if finalcatalogs==[]:
+        try:
+            finalcatalogs=read_file('hatewaitcatalog.txt')
+        except:
+            finalcatalogs=parse_catalogs(write=True)
     productlinks=set()
     tasks=[]
     loop=asyncio.new_event_loop()
@@ -169,10 +170,11 @@ def parse_product_pages(finalcatalogs=[],write=False):
     return productlinks
 
 def get_product_info(productlinks=[],write=False):
-    try:
-        productlinks=read_file('hatewaitproduct.txt')
-    except:
-        productlinks=parse_product_pages(write=True)
+    if productlinks==[]:
+        try:
+            productlinks=read_file('hatewaitproduct.txt')
+        except:
+            productlinks=parse_product_pages(write=True)
     dataset=[]
     event_loop=[]
     events=[]
@@ -194,20 +196,19 @@ def get_product_info(productlinks=[],write=False):
         fin = loop.run_until_complete(asyncio.wait(tasks))
         for i in fin[0]:
             if i._result[0] is not None:
-                dataset.append([i._result[0][0],i._result[0][1],i._result[0][2],
-                i._result[0][3],i._result[0][4],'https://hatewait.ru'+i._result[1]])
+                dataset.append([str(i._result[0][0]),str(i._result[0][1]),str(i._result[0][2]),
+                str(i._result[0][3]),str(i._result[0][4]),'https://hatewait.ru'+i._result[1]])
         loop.close()
     dataset=pd.DataFrame(dataset,columns=['Brand','Model','Category','Price','Country','Link'])
     if write is True:
         dataset.to_csv('site_data.csv', encoding='utf-8')
-    # if write is True:
-    #     save_file("hatewait_raw_data.txt", dataset)
     return dataset
 
-def download_all_data():
+def download_all_data(cloud):
     catalog=parse_catalogs(write=True)
     products=parse_product_pages(catalog,write=True)
-    get_product_info(products,write=True)
+    info=get_product_info(products,write=True)
+    return info
 
 def get_all_data():
     try:
@@ -215,16 +216,12 @@ def get_all_data():
     except:
         dataset=get_product_info(write=True)
     brands=dataset['Brand'].unique().tolist()
-    countries=list(country_to_brand.keys())
+    countries=dataset['Country'].unique().tolist()
     categories=dataset["Category"].unique().tolist()
-    brands_df=pd.DataFrame({"Brand Name":brands})
-    countries_df=pd.DataFrame({"Country Name":countries})
-    categories_df=pd.DataFrame({"Category Name":categories})
-    dataset["Brand"].replace(brands,brands_df.index.to_list(),inplace=True)
+    brands_df=pd.DataFrame({"id": range(len(brands)),"brand":brands})
+    countries_df=pd.DataFrame({"id": range(len(countries)),"country":countries})
+    categories_df=pd.DataFrame({"id": range(len(categories)),"category":categories})
+    dataset["Brand"].replace(brands, brands_df.index.to_list(),inplace=True)
     dataset["Country"].replace(countries, countries_df.index.to_list(),inplace=True)
-    dataset["Category"].replace(categories,categories_df.index.to_list(),inplace=True)
+    dataset["Category"].replace(categories, categories_df.index.to_list(),inplace=True)
     return dataset, brands_df, countries_df, categories_df
-    
-
-
-
