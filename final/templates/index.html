@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <p>Вывод инвормации с сайта hatewait</p>
+    <form id='form 1' method="POST">
+    <select name= choices method="GET" action="/">
+        {% for choice in choices %}
+            <option value= "{{choice}}" SELECTED>{{choice}}</option>"
+        {% endfor %}
+    </select>
+    <select name= vendors method="GET" action ="/">
+        {% for vendor in vendors %}
+            <option value= "{{vendor}}" SELECTED>{{vendor}}</option>"
+        {% endfor %}
+    </select>
+    <input type="submit" name="submit_button" value="Построить график">
+    </form>
+    <!-- <input type="submit" name="submit_button" value="Обновить базу"> -->
+    <!-- <a href='/update'>Обновить</a> -->
+    <form id='form 2' method="POST">
+        <select name= source method="GET" action="/">
+            {% for choice in choices2 %}
+                <option value= "{{choice}}" SELECTED>{{choice}}</option>"
+            {% endfor %}
+        </select>
+        <input type="submit" name="submit_button" value="Обновить">
+    </form>
+</body>
+</html>
