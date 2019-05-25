@@ -78,18 +78,22 @@ def get_all_google():
 
 def save_all_microsoft():
     try:
-        sita_data=pd.read_csv('site_data.csv', encoding='utf-8')
+        sitedatacloud=pd.read_csv('site_data.csv', encoding='utf-8')
     except:
-        sita_data=get_product_info(write=True)
-    block_blob_service.create_container('site_data')
+        sitedatacloud=get_product_info(write=True)
+    try:
+        del sitedatacloud["Unnamed: 0"]
+    except KeyError:
+        pass
+    block_blob_service.create_container('sitedatacloud')
     block_blob_service.create_blob_from_path(
-    'sitedata',
+    'sitedatacloud',
     'sitedata.csv',
     'site_data.csv',
     content_settings=ContentSettings(content_type='application/CSV'))
 
 def get_all_microsoft():
-    block_blob_service.get_blob_to_path('sitedata', 'sitedata.csv', 'out-data.csv')
+    block_blob_service.get_blob_to_path('sitedatacloud', 'sitedata.csv', 'out-data.csv')
     site_data = pd.read_csv("out-data.csv")
     return site_data
 
